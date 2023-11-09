@@ -1,0 +1,4 @@
+pan-os-python
+pan-python
+xmltodict
+panos-upgrade-assurance

@@ -18,6 +18,26 @@
       with_items: "{{ fw_interfaces }}"
       tags: network
 
+    - name: Configure virtual router
+      paloaltonetworks.panos.panos_virtual_router:
+        provider: "{{ panos_provider }}"
+        name: "default"
+        interface: "{{ item.if_name }}"
+        commit: false
+        state: present
+      with_items: "{{ fw_interfaces }}"
+      tags: network
+
+    - name: Configure static route
+      paloaltonetworks.panos.panos_static_route:
+        provider: '{{ panos_provider }}'
+        virtual_router: 'default'
+        name: 'default'
+        destination: '0.0.0.0/0'
+        nexthop: '10.0.0.2'
+        state: present
+      tags: network
+
     - name: Configure zones
       paloaltonetworks.panos.panos_zone:
         provider: "{{ panos_provider }}"
@@ -26,26 +46,6 @@
         interface: "{{ item.interfaces }}"
         state: present
       with_items: "{{ fw_zones }}"
-      tags: network
-
-    - name: Configure virtual router
-      paloaltonetworks.panos.panos_virtual_router:
-        provider: "{{ panos_provider }}"
-        name: "default"
-        interface: ["ethernet1/1", "ethernet1/2", "ethernet1/3"]
-        commit: false
-        state: present
-      tags: network
-
-
-    - name: Configure static route
-      paloaltonetworks.panos.panos_static_route:
-        provider: '{{ panos_provider }}'
-        virtual_router: 'default'
-        name: 'default'
-        destination: '0.0.0.0/0'
-        nexthop: '192.168.55.2'
-        state: present
       tags: network
 
     - name: Create address objects
@@ -57,9 +57,3 @@
         state: present
       with_items: '{{ fw_address_objects }}'
       tags: objects
-
-
-    # - name: Commit candidate configuration
-    #   paloaltonetworks.panos.panos_commit:
-    #     provider: "{{ panos_provider }}"
-    #   tags: commit

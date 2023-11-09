@@ -23,7 +23,7 @@ administrators:
 fw_interfaces:
   - if_name: "ethernet1/1"
     mode: "layer3"
-    ip: ["10.0.0.1/24"]
+    ip: ["10.0.0.1/30"]
     enable_dhcp: false
   - if_name: "ethernet1/2"
     mode: "layer3"

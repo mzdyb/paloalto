@@ -24,7 +24,7 @@
         name: "default"
         interface: "{{ item.if_name }}"
         commit: false
-        state: present
+        state: merged
       with_items: "{{ fw_interfaces }}"
       tags: network
 

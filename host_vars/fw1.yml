@@ -1,0 +1,99 @@
+---
+panos_provider:
+  ip_address: 192.168.122.106
+  username: admin
+  password: Redhat123
+
+
+administrators:
+  admin1:
+    username: admin1
+    password: password1
+  admin2:
+    username: admin2
+    password: password2
+  admin3:
+    username: admin3
+    password: password3
+  admin4:
+    username: admin4
+    password: password4
+
+
+fw_interfaces:
+  - if_name: "ethernet1/1"
+    mode: "layer3"
+    ip: ["10.0.0.1/24"]
+    enable_dhcp: false
+  - if_name: "ethernet1/2"
+    mode: "layer3"
+    ip: ["10.0.1.1/24"]
+    enable_dhcp: false
+  - if_name: "ethernet1/3"
+    mode: "layer3"
+    ip: ["10.0.2.1/24"]
+    enable_dhcp: false
+
+fw_zones:
+  - zone: "untrust"
+    mode: "layer3"
+    interfaces: ["ethernet1/1"]
+  - zone: "web"
+    mode: "layer3"
+    interfaces: ["ethernet1/2"]
+  - zone: "db"
+    mode: "layer3"
+    interfaces: ["ethernet1/3"]
+
+fw_address_objects:
+  - name: "web-server"
+    value: "10.0.1.100"
+  - name: "db-server"
+    value: "10.0.2.100"
+
+fw_security_rules:
+  - rule_name: "Allow ping"
+    source_zone: ["any"]
+    source_ip: ["any"]
+    destination_zone: ["any"]
+    destination_ip: ["any"]
+    application: ["ping"]
+    service: ["application-default"]
+    action: "allow"
+
+  - rule_name: 'Allow SSH inbound'
+    source_zone: ['untrust']
+    source_ip: ['any']
+    destination_zone: ['web','db']
+    destination_ip: 'any'
+    application: ['ssh']
+    service: ['application-default']
+    action: 'allow'
+
+  - rule_name: "Allow inbound web"
+    source_zone: ["untrust"]
+    source_ip: ["any"]
+    destination_zone: ["web"]
+    destination_ip: ["any"]
+    application: ['web-browsing','ssl']
+    service: ['application-default']
+    action: "allow"
+
+  - rule_name: "Allow web to db"
+    source_zone: ["web"]
+    source_ip: ["web-server"]
+    destination_zone: ["db"]
+    destination_ip: ["db-server"]
+    application: ["mysql"]
+    service: ["application-default"]
+    action: "allow"
+    
+  - rule_name: "Allow all outbound"
+    source_zone: ["web", "db"]
+    source_ip: ["any"]
+    destination_zone: ["untrust"]
+    destination_ip: ["any"]
+    application: ["any"]
+    service: ["application-default"]
+    action: "allow"
+  

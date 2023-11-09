@@ -1,0 +1,11 @@
+---
+- name: Commit firewall config
+  hosts: all
+  connection: local
+  gather_facts: false
+      
+  tasks:  
+    
+    - name: Commit candidate configuration
+      paloaltonetworks.panos.panos_commit:
+        provider: "{{ panos_provider }}"

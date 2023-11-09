@@ -1,0 +1,28 @@
+---
+- name: Create security policies
+  hosts: all
+  connection: local
+  gather_facts: false
+  
+  tasks:
+
+    - name: Create security rules
+      paloaltonetworks.panos.panos_security_rule:
+        provider: "{{ panos_provider }}"
+        rule_name: "{{ item.rule_name }}"
+        source_zone: "{{ item.source_zone }}"
+        source_ip: "{{ item.source_ip }}"
+        destination_zone: "{{ item.destination_zone }}"
+        destination_ip: "{{ item.destination_ip }}"
+        application: "{{ item.application }}"
+        service: "{{ item.service }}"
+        action: "{{ item.action }}"
+        commit: false
+        state: present
+      with_items: "{{ fw_security_rules }}"
+      tags: security_rules
+
+    # - name: Commit candidate configuration
+    #   paloaltonetworks.panos.panos_commit:
+    #     provider: "{{ panos_provider }}"
+    #   tags: commit

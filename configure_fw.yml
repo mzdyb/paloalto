@@ -1,0 +1,65 @@
+---
+- name: Configure firewall
+  hosts: all
+  connection: local
+  gather_facts: false
+  
+  tasks:
+
+    - name: Configure FW interfaces
+      paloaltonetworks.panos.panos_interface:
+        provider: "{{ panos_provider }}"
+        if_name: "{{ item.if_name }}"
+        mode: "{{ item.mode }}"
+        ip: "{{ item.ip }}"
+        enable_dhcp: "{{ item.enable_dhcp }}"
+        commit: false
+        state: present
+      with_items: "{{ fw_interfaces }}"
+      tags: network
+
+    - name: Configure zones
+      paloaltonetworks.panos.panos_zone:
+        provider: "{{ panos_provider }}"
+        zone: "{{ item.zone }}"
+        mode: "{{ item.mode }}"
+        interface: "{{ item.interfaces }}"
+        state: present
+      with_items: "{{ fw_zones }}"
+      tags: network
+
+    - name: Configure virtual router
+      paloaltonetworks.panos.panos_virtual_router:
+        provider: "{{ panos_provider }}"
+        name: "default"
+        interface: ["ethernet1/1", "ethernet1/2", "ethernet1/3"]
+        commit: false
+        state: present
+      tags: network
+
+
+    - name: Configure static route
+      paloaltonetworks.panos.panos_static_route:
+        provider: '{{ panos_provider }}'
+        virtual_router: 'default'
+        name: 'default'
+        destination: '0.0.0.0/0'
+        nexthop: '192.168.55.2'
+        state: present
+      tags: network
+
+    - name: Create address objects
+      paloaltonetworks.panos.panos_address_object:
+        provider: '{{ panos_provider }}'
+        name: '{{ item.name }}'
+        value: '{{ item.value }}'
+        commit: false
+        state: present
+      with_items: '{{ fw_address_objects }}'
+      tags: objects
+
+
+    # - name: Commit candidate configuration
+    #   paloaltonetworks.panos.panos_commit:
+    #     provider: "{{ panos_provider }}"
+    #   tags: commit

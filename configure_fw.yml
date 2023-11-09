@@ -22,10 +22,9 @@
       paloaltonetworks.panos.panos_virtual_router:
         provider: "{{ panos_provider }}"
         name: "default"
-        interface: "{{ item.if_name }}"
+        interface: [ 'ethernet1/1', 'ethernet1/2', 'ethernet1/3' ]
         commit: false
-        state: "{{ fw_config_state | default('merged') }}"
-      with_items: "{{ fw_interfaces }}"
+        state: "{{ fw_config_state | default('present') }}"
       tags: network
 
     - name: Configure static route

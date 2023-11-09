@@ -18,7 +18,7 @@
         service: "{{ item.service }}"
         action: "{{ item.action }}"
         commit: false
-        state: present
+        state: "{{ fw_rules_state | default('present') }}"
       with_items: "{{ fw_security_rules }}"
       tags: security_rules
 

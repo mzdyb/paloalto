@@ -45,7 +45,7 @@
         interface: "{{ item.interfaces }}"
         state: "{{ fw_config_state | default('present') }}"
       with_items: "{{ fw_zones }}"
-      tags: network
+      tags: zones
 
     - name: Create address objects
       paloaltonetworks.panos.panos_address_object:

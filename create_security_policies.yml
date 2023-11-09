@@ -21,8 +21,3 @@
         state: "{{ fw_rules_state | default('present') }}"
       with_items: "{{ fw_security_rules }}"
       tags: security_rules
-
-    # - name: Commit candidate configuration
-    #   paloaltonetworks.panos.panos_commit:
-    #     provider: "{{ panos_provider }}"
-    #   tags: commit

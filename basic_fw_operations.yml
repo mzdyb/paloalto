@@ -9,7 +9,7 @@
     - name: Gather FW facts
       #collects fact information from firewall
       paloaltonetworks.panos.panos_facts:
-        provider: "{{ device }}"
+        provider: "{{ panos_provider }}"
         gather_subset: ["all"]
 
     - name: Print FW facts
@@ -29,7 +29,7 @@
     - name: Get admin accounts info
       #execute any operational mode command on FW
       paloaltonetworks.panos.panos_op:
-        provider: "{{ device }}"
+        provider: "{{ panos_provider }}"
         cmd: "show admins all"
       register: admins_info
 
@@ -42,7 +42,7 @@
     - name: Create admin account
       #manage administrator user accounts
       paloaltonetworks.panos.panos_administrator:
-        provider: "{{ device }}"
+        provider: "{{ panos_provider }}"
         admin_username: "{{ item.value.username }}"
         admin_password: "{{ item.value.password }}"
         superuser: "yes"

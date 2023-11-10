@@ -26,4 +26,4 @@
 
 </ol>
 <br>
-<p></p>More examples can be found in Palo Alto Networks github Ansible repository https://github.com/PaloAltoNetworks/ansible-playbooks<p>
+<p>More examples can be found in Palo Alto Networks github Ansible repository https://github.com/PaloAltoNetworks/ansible-playbooks</ol>p>

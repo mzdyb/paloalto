@@ -22,3 +22,5 @@
 
 
 </ol>
+
+![fw_deprovision](https://github.com/mzdyb/paloalto/assets/49950423/4de19201-bead-4616-a20c-5168516cbac3)

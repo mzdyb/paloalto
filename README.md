@@ -25,3 +25,5 @@
   Provision or deprovision action is decided based on the values of the variables fw_config_state and fw_rules_state collected via AAP surveys
 
 </ol>
+<br>
+<>More examples can be found in Palo Alto Networks github Ansible repository https://github.com/PaloAltoNetworks/ansible-playbooks<br>

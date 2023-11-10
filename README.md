@@ -8,21 +8,19 @@
       <li>Executing operational mode  commands on firewall</li>
       <li>Creating administrator accounts</li>    
   </ul></li>
+  
   <li>Automating FW configuration<ul>
       <li>Configuring networking elements (interfaces, virtual router, static routes)</li>
       <li>Configuring zones and objects</li>
       <li>Configuring security policies</li>
   </ul></li>
+  
   <li>Example Ansible automation workflows<ul>
       <li>Automated FW provisioning</li>
-
-
-    
-    ![fw_provision](https://github.com/mzdyb/paloalto/assets/49950423/b70e5a32-6e9d-4263-907d-e9320b368ed7)
-
-    
+        <img src="https://github.com/mzdyb/paloalto/assets/49950423/e9c6c673-df8c-451b-be9f-0e28a438ddbd" alt="YourImageAltText" style="display: block; margin-left: auto; margin-right: auto;">
       <li>Automated FW deprovisioning</li> 
   </ul></li>
 
 
 </ol>
+![fw_provision](https://github.com/mzdyb/paloalto/assets/49950423/e9c6c673-df8c-451b-be9f-0e28a438ddbd)

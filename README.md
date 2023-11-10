@@ -1,6 +1,6 @@
 # paloalto
 
-<p> **Demo of basic use cases of Palo Alto Firewall automation with Ansible** </p>
+<p><strong>Demo of basic use cases of Palo Alto Firewall automation with Ansible</strong></p>
 <ol>
   <li>Automating FW operational tasks<ul>
       <li>Displaying fact information from firewall</li>

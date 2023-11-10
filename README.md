@@ -15,12 +15,13 @@
   </ul></li>
   <li>Example Ansible automation workflows<ul>
       <li>Automated FW provisioning</li>
-      ![fw_provision](https://github.com/mzdyb/paloalto/assets/49950423/3237dc46-9232-4d8d-afa9-90d55d457bd6)
+
+
+    
       <li>Automated FW deprovisioning</li>
-      ![fw_deprovision](https://github.com/mzdyb/paloalto/assets/49950423/2bf1d256-89c5-42a9-8f44-df20dd0c2869)
+      
+
   </ul></li>
 
 
 </ol>
-
-![fw_deprovision](https://github.com/mzdyb/paloalto/assets/49950423/4de19201-bead-4616-a20c-5168516cbac3)

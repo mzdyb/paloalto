@@ -7,13 +7,13 @@
       <li>Displaying fact information from firewall</li>
       <li>Executing operational mode  commands on firewall</li>
       <li>Creating administrator accounts</li>    
-  </ul></li>
+  </ul></li>  
   
   <li>Automating FW configuration<ul>
       <li>Configuring networking elements (interfaces, virtual router, static routes)</li>
       <li>Configuring zones and objects</li>
       <li>Configuring security policies</li>
-  </ul></li>
+  </ul></li>  
   
   <li>Example Ansible automation workflows<ul>
       <li>Automated FW provisioning</li>

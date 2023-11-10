@@ -6,6 +6,6 @@
       
   tasks:  
     
-    - name: Commit candidate configuration
+    - name: Commit configuration
       paloaltonetworks.panos.panos_commit:
         provider: "{{ panos_provider }}"

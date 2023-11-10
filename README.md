@@ -6,7 +6,7 @@
   <li>Automating FW operational tasks<ul>
       <li>Displaying fact information from firewall</li>
       <li>Executing operational mode  commands on firewall</li>
-      <li>Creating administrator accounts</li>    
+      <li>Creating administrator accounts  </li>    
   </ul></li>  
   
   <li>Automating FW configuration<ul>

@@ -21,5 +21,7 @@
       <li>Automated FW deprovisioning</li> 
         <img src="https://github.com/mzdyb/paloalto/assets/49950423/33f1f006-1340-4409-b01b-5b99ac8b10c2" alt="Automated FW deprovisioning" style="display: block; margin-left: auto; margin-right: auto;">    
   </ul></li>
+  <br>
+  <li>The provision or deprovision action is decided based on the values of the variables fw_config_state and fw_rules_state collected via AAP surveys.<ul>
 
 </ol>

@@ -47,5 +47,6 @@
         admin_password: "{{ item.value.password }}"
         superuser: "yes"
         commit: "False"
+        state: "{{ fw_admin_accounts_state | default('present') }}"
       with_dict: "{{ administrators }}"
       no_log: "True"

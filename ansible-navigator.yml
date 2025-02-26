@@ -4,7 +4,7 @@ ansible-navigator:
     config:
       path: ansible.cfg
   execution-environment:
-    image: hub.rh.lab/ee-panos:1.3
+    image: aap.rh.lab/ee-panos:1.3
     pull:
       policy: missing
   playbook-artifact:

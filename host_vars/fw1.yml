@@ -1,8 +1,8 @@
 ---
 panos_provider:
-  ip_address: 192.168.122.106
+  ip_address: 192.168.130.100
   username: admin
-  password: Redhat123 
+  password: P4l04lt0
   #passwords are in clear test for demonstration purpose, normally should be encrypted (for example with 'ansible-vault encrypt <file.yml>')
 
 

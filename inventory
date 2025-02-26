@@ -1,2 +1,2 @@
 [pa_fw]
-fw1 ansible_host=192.168.122.106
+fw1 ansible_host=192.168.130.100

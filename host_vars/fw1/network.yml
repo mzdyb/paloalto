@@ -1,0 +1,24 @@
+---
+fw_virtual_router:
+  name: "default"
+  interfaces: ["ethernet1/1", "ethernet1/2", "ethernet1/3"]
+
+fw_static_routes:
+  - name: "default"
+    destination: "0.0.0.0/0"
+    nexthop: "10.0.0.2"
+    virtual_router: "default"
+
+fw_interfaces:
+  - if_name: "ethernet1/1"
+    mode: "layer3"
+    ip: ["10.0.0.1/30"]
+    enable_dhcp: false
+  - if_name: "ethernet1/2"
+    mode: "layer3"
+    ip: ["10.0.1.1/24"]
+    enable_dhcp: false
+  - if_name: "ethernet1/3"
+    mode: "layer3"
+    ip: ["10.0.2.1/24"]
+    enable_dhcp: false

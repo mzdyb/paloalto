@@ -1,0 +1,17 @@
+---
+- name: Test state gathered
+  hosts: pa_fw
+  connection: local
+  gather_facts: false
+
+  tasks:
+    - name: Gather all security rules
+      paloaltonetworks.panos.panos_static_route:
+        provider: "{{ panos_provider }}"
+        gathered_filter: '*'
+        state: gathered
+      register: gathered_rules
+
+    - name: Display gathered rules
+      ansible.builtin.debug:
+        var: gathered_rules.gathered

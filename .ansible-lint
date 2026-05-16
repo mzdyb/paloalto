@@ -1,0 +1,9 @@
+---
+skip_list:
+  - yaml[truthy]
+  - no-changed-when
+
+warn_list:
+  - experimental
+
+offline: false

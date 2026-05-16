@@ -1,2 +1,11 @@
 ---
-ansible_python_interpreter: '{{ ansible_playbook_python }}'
+ansible_python_interpreter: "{{ ansible_playbook_python }}"
+
+# Credentials should be provided externally, here are some options:
+#   - AAP Custom Credentials (injected as extra_vars)
+#   - via ansible-navigator cli parameters: -e panos_username=admin -e panos_password=secret
+#   - Ansible Vault encrypted vars file
+panos_provider:
+  ip_address: "{{ ansible_host }}"
+  username: "{{ panos_username }}"
+  password: "{{ panos_password }}"

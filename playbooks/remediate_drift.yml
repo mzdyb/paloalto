@@ -1,0 +1,143 @@
+---
+# Step 1: Backup current running config before making changes
+- name: Pre-remediation backup
+  ansible.builtin.import_playbook: backup_fw_config.yml
+
+# Step 2: Re-apply network configuration (corrects modification drift)
+- name: Remediate network configuration
+  ansible.builtin.import_playbook: configure_fw_network.yml
+  vars:
+    fw_config_state: replaced
+
+# Step 3: Re-apply security policies (corrects modification drift)
+- name: Remediate security policies
+  ansible.builtin.import_playbook: configure_fw_security_policies.yml
+  vars:
+    fw_rules_state: replaced
+
+# Step 4: Remove unauthorized additions
+- name: Remove unauthorized configuration
+  hosts: pa_fw
+  connection: local
+  gather_facts: false
+
+  tasks:
+    - name: Gather live security rules
+      paloaltonetworks.panos.panos_security_rule:
+        provider: "{{ panos_provider }}"
+        gathered_filter: '*'
+        state: gathered
+      register: live_rules
+
+    - name: Gather live address objects
+      paloaltonetworks.panos.panos_address_object:
+        provider: "{{ panos_provider }}"
+        gathered_filter: '*'
+        state: gathered
+      register: live_objects
+
+    - name: Gather live zones
+      paloaltonetworks.panos.panos_zone:
+        provider: "{{ panos_provider }}"
+        gathered_filter: '*'
+        state: gathered
+      register: live_zones
+
+    - name: Gather live static routes
+      paloaltonetworks.panos.panos_static_route:
+        provider: "{{ panos_provider }}"
+        virtual_router: "{{ fw_virtual_router.name }}"
+        gathered_filter: '*'
+        state: gathered
+      register: live_routes
+
+    - name: Compute unauthorized additions
+      ansible.builtin.set_fact:
+        unauthorized_rules: >-
+          {{ live_rules.gathered | default([]) | map(attribute='rule_name') | list
+             | difference(fw_security_rules | map(attribute='rule_name') | list) }}
+        unauthorized_objects: >-
+          {{ live_objects.gathered | default([]) | map(attribute='name') | list
+             | difference(fw_address_objects | map(attribute='name') | list) }}
+        unauthorized_zones: >-
+          {{ live_zones.gathered | default([]) | map(attribute='zone') | list
+             | difference(fw_zones | map(attribute='zone') | list) }}
+        unauthorized_routes: >-
+          {{ live_routes.gathered | default([]) | map(attribute='name') | list
+             | difference(fw_static_routes | map(attribute='name') | list) }}
+
+    - name: Remove unauthorized security rules
+      paloaltonetworks.panos.panos_security_rule:
+        provider: "{{ panos_provider }}"
+        rule_name: "{{ item }}"
+        commit: false
+        state: absent
+      loop: "{{ unauthorized_rules }}"
+      when: unauthorized_rules | length > 0
+
+    - name: Remove unauthorized address objects
+      paloaltonetworks.panos.panos_address_object:
+        provider: "{{ panos_provider }}"
+        name: "{{ item }}"
+        commit: false
+        state: absent
+      loop: "{{ unauthorized_objects }}"
+      when: unauthorized_objects | length > 0
+
+    - name: Remove unauthorized zones
+      paloaltonetworks.panos.panos_zone:
+        provider: "{{ panos_provider }}"
+        zone: "{{ item }}"
+        state: absent
+      loop: "{{ unauthorized_zones }}"
+      when: unauthorized_zones | length > 0
+
+    - name: Remove unauthorized static routes
+      paloaltonetworks.panos.panos_static_route:
+        provider: "{{ panos_provider }}"
+        virtual_router: "{{ fw_virtual_router.name }}"
+        name: "{{ item }}"
+        state: absent
+      loop: "{{ unauthorized_routes }}"
+      when: unauthorized_routes | length > 0
+
+    - name: Display removal summary
+      ansible.builtin.debug:
+        msg:
+          - "Unauthorized items removed:"
+          - "  Security rules: {{ unauthorized_rules | join(', ') | default('none', true) }}"
+          - "  Address objects: {{ unauthorized_objects | join(', ') | default('none', true) }}"
+          - "  Zones: {{ unauthorized_zones | join(', ') | default('none', true) }}"
+          - "  Static routes: {{ unauthorized_routes | join(', ') | default('none', true) }}"
+
+# Step 5: Commit all changes
+- name: Commit remediated configuration
+  ansible.builtin.import_playbook: commit_fw_config.yml
+
+# Step 6: Post-remediation verification
+- name: Verify remediation
+  hosts: pa_fw
+  connection: local
+  gather_facts: false
+
+  tasks:
+    - name: Verify firewall is reachable after remediation
+      paloaltonetworks.panos.panos_op:
+        provider: "{{ panos_provider }}"
+        cmd: "show system info"
+
+    - name: Report remediation complete
+      ansible.builtin.debug:
+        msg:
+          - "======================================"
+          - "  REMEDIATION COMPLETE"
+          - "  Host: {{ inventory_hostname }}"
+          - "======================================"
+          - "Configuration has been remediated and committed."
+          - "Run detect_drift.yml to verify no remaining drift."
+
+    - name: Set remediation stats for AAP workflow
+      ansible.builtin.set_stats:
+        data:
+          remediation_completed: true
+        per_host: false

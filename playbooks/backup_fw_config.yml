@@ -1,0 +1,34 @@
+---
+- name: Backup firewall running configuration
+  hosts: pa_fw
+  connection: local
+  gather_facts: false
+
+  vars:
+    backup_dir: "{{ fw_backup_dir | default('/tmp/fw_backups') }}"
+
+  tasks:
+    - name: Ensure backup directory exists
+      ansible.builtin.file:
+        path: "{{ backup_dir }}"
+        state: directory
+        mode: "0755"
+      delegate_to: localhost
+      tags: backup
+
+    - name: Generate backup timestamp
+      ansible.builtin.set_fact:
+        backup_timestamp: "{{ '%Y%m%d_%H%M%S' | strftime }}"
+      tags: backup
+
+    - name: Export running configuration
+      paloaltonetworks.panos.panos_export:
+        provider: "{{ panos_provider }}"
+        category: "configuration"
+        filename: "{{ backup_dir }}/{{ inventory_hostname }}_{{ backup_timestamp }}.xml"
+      tags: backup
+
+    - name: Display backup result
+      ansible.builtin.debug:
+        msg: "Configuration backed up to: {{ backup_dir }}/{{ inventory_hostname }}_{{ backup_timestamp }}.xml"
+      tags: backup

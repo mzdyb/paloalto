@@ -1,0 +1,228 @@
+---
+- name: Detect configuration drift on firewall
+  hosts: pa_fw
+  connection: local
+  gather_facts: false
+  check_mode: true
+  diff: true
+
+  tasks:
+    # Phase 1: Detect modifications to existing configuration
+    # (check_mode compares desired state vs live state)
+    - name: Check interfaces for drift
+      paloaltonetworks.panos.panos_interface:
+        provider: "{{ panos_provider }}"
+        if_name: "{{ item.if_name }}"
+        mode: "{{ item.mode }}"
+        ip: "{{ item.ip }}"
+        commit: false
+        state: "{{ fw_config_state | default('present') }}"
+      loop: "{{ fw_interfaces }}"
+      register: interface_drift
+      tags:
+        - network
+        - drift_check
+
+    - name: Check virtual router for drift
+      paloaltonetworks.panos.panos_virtual_router:
+        provider: "{{ panos_provider }}"
+        name: "{{ fw_virtual_router.name }}"
+        interface: "{{ fw_virtual_router.interfaces }}"
+        commit: false
+        state: "{{ fw_config_state | default('present') }}"
+      register: vrouter_drift
+      tags:
+        - network
+        - drift_check
+
+    - name: Check static routes for drift
+      paloaltonetworks.panos.panos_static_route:
+        provider: "{{ panos_provider }}"
+        virtual_router: "{{ item.virtual_router }}"
+        name: "{{ item.name }}"
+        destination: "{{ item.destination }}"
+        nexthop: "{{ item.nexthop }}"
+        state: "{{ fw_config_state | default('present') }}"
+      loop: "{{ fw_static_routes }}"
+      register: route_drift
+      tags:
+        - network
+        - drift_check
+
+    - name: Check zones for drift
+      paloaltonetworks.panos.panos_zone:
+        provider: "{{ panos_provider }}"
+        zone: "{{ item.zone }}"
+        mode: "{{ item.mode }}"
+        interface: "{{ item.interfaces }}"
+        state: "{{ fw_config_state | default('present') }}"
+      loop: "{{ fw_zones }}"
+      register: zone_drift
+      tags:
+        - zones
+        - drift_check
+
+    - name: Check address objects for drift
+      paloaltonetworks.panos.panos_address_object:
+        provider: "{{ panos_provider }}"
+        name: "{{ item.name }}"
+        value: "{{ item.value }}"
+        commit: false
+        state: "{{ fw_config_state | default('present') }}"
+      loop: "{{ fw_address_objects }}"
+      register: address_drift
+      tags:
+        - objects
+        - drift_check
+
+    - name: Check security rules for drift
+      paloaltonetworks.panos.panos_security_rule:
+        provider: "{{ panos_provider }}"
+        rule_name: "{{ item.rule_name }}"
+        source_zone: "{{ item.source_zone }}"
+        source_ip: "{{ item.source_ip }}"
+        destination_zone: "{{ item.destination_zone }}"
+        destination_ip: "{{ item.destination_ip }}"
+        application: "{{ item.application }}"
+        service: "{{ item.service }}"
+        action: "{{ item.action }}"
+        commit: false
+        state: "{{ fw_rules_state | default('present') }}"
+      loop: "{{ fw_security_rules }}"
+      register: security_drift
+      tags:
+        - security_rules
+        - drift_check
+
+    # Phase 2: Detect unauthorized additions
+    # (state: gathered retrieves live items for comparison)
+    - name: Gather live security rules
+      paloaltonetworks.panos.panos_security_rule:
+        provider: "{{ panos_provider }}"
+        gathered_filter: '*'
+        state: gathered
+      register: live_rules
+      check_mode: false
+      tags: drift_unauthorized
+
+    - name: Gather live address objects
+      paloaltonetworks.panos.panos_address_object:
+        provider: "{{ panos_provider }}"
+        gathered_filter: '*'
+        state: gathered
+      register: live_objects
+      check_mode: false
+      tags: drift_unauthorized
+
+    - name: Gather live zones
+      paloaltonetworks.panos.panos_zone:
+        provider: "{{ panos_provider }}"
+        gathered_filter: '*'
+        state: gathered
+      register: live_zones
+      check_mode: false
+      tags: drift_unauthorized
+
+    - name: Gather live static routes
+      paloaltonetworks.panos.panos_static_route:
+        provider: "{{ panos_provider }}"
+        virtual_router: "{{ fw_virtual_router.name }}"
+        gathered_filter: '*'
+        state: gathered
+      register: live_routes
+      check_mode: false
+      tags: drift_unauthorized
+
+    - name: Compute unauthorized additions
+      ansible.builtin.set_fact:
+        unauthorized_rules: >-
+          {{ live_rules.gathered | default([]) | map(attribute='rule_name') | list
+             | difference(fw_security_rules | map(attribute='rule_name') | list) }}
+        unauthorized_objects: >-
+          {{ live_objects.gathered | default([]) | map(attribute='name') | list
+             | difference(fw_address_objects | map(attribute='name') | list) }}
+        unauthorized_zones: >-
+          {{ live_zones.gathered | default([]) | map(attribute='zone') | list
+             | difference(fw_zones | map(attribute='zone') | list) }}
+        unauthorized_routes: >-
+          {{ live_routes.gathered | default([]) | map(attribute='name') | list
+             | difference(fw_static_routes | map(attribute='name') | list) }}
+      check_mode: false
+      tags: drift_unauthorized
+
+    # =========================================================
+    # Phase 3: Drift report and AAP workflow stats
+    # =========================================================
+
+    - name: Compute drift status
+      ansible.builtin.set_fact:
+        # panos_interface check_mode always reports changed (module bug) — excluded from modification_drift_found
+        interface_drift_found: >-
+          {{ interface_drift.results | default([]) | selectattr('changed', 'equalto', true) | list | length > 0 }}
+        modification_drift_found: >-
+          {{
+            (vrouter_drift.changed | default(false)) or
+            (route_drift.results | default([]) | selectattr('changed', 'equalto', true) | list | length > 0) or
+            (zone_drift.results | default([]) | selectattr('changed', 'equalto', true) | list | length > 0) or
+            (address_drift.results | default([]) | selectattr('changed', 'equalto', true) | list | length > 0) or
+            (security_drift.results | default([]) | selectattr('changed', 'equalto', true) | list | length > 0)
+          }}
+        unauthorized_additions_found: >-
+          {{
+            (unauthorized_rules | length > 0) or
+            (unauthorized_objects | length > 0) or
+            (unauthorized_zones | length > 0) or
+            (unauthorized_routes | length > 0)
+          }}
+      check_mode: false
+      tags: always
+
+    - name: Set overall drift detected flag
+      ansible.builtin.set_fact:
+        drift_detected: "{{ modification_drift_found or unauthorized_additions_found }}"
+      check_mode: false
+      tags: always
+
+    - name: Display drift report
+      ansible.builtin.debug:
+        msg:
+          - "======================================"
+          - "  DRIFT DETECTION REPORT"
+          - "  Host: {{ inventory_hostname }}"
+          - "======================================"
+          - ""
+          - "MODIFIED CONFIGURATION (would be corrected by remediation):"
+          - "  Interfaces: {{ interface_drift.results | default([]) | selectattr('changed', 'equalto', true) | map(attribute='item.if_name') | list | join(', ') | default('none', true) }} (unreliable - module bug)"
+          - "  Virtual router: {{ 'DRIFTED' if (vrouter_drift.changed | default(false)) else 'none' }}"
+          - "  Static routes: {{ route_drift.results | default([]) | selectattr('changed', 'equalto', true) | map(attribute='item.name') | list | join(', ') | default('none', true) }}"
+          - "  Zones: {{ zone_drift.results | default([]) | selectattr('changed', 'equalto', true) | map(attribute='item.zone') | list | join(', ') | default('none', true) }}"
+          - "  Address objects: {{ address_drift.results | default([]) | selectattr('changed', 'equalto', true) | map(attribute='item.name') | list | join(', ') | default('none', true) }}"
+          - "  Security rules: {{ security_drift.results | default([]) | selectattr('changed', 'equalto', true) | map(attribute='item.rule_name') | list | join(', ') | default('none', true) }}"
+          - ""
+          - "UNAUTHORIZED ADDITIONS (not in source of truth, would be removed):"
+          - "  Security rules: {{ unauthorized_rules | join(', ') | default('none', true) }}"
+          - "  Address objects: {{ unauthorized_objects | join(', ') | default('none', true) }}"
+          - "  Zones: {{ unauthorized_zones | join(', ') | default('none', true) }}"
+          - "  Static routes: {{ unauthorized_routes | join(', ') | default('none', true) }}"
+          - ""
+          - "Overall drift detected: {{ drift_detected }}"
+          - "======================================"
+      check_mode: false
+      tags: always
+
+    - name: Set stats for AAP workflow
+      ansible.builtin.set_stats:
+        data:
+          drift_detected: "{{ drift_detected }}"
+          modification_drift_found: "{{ modification_drift_found }}"
+          unauthorized_additions_found: "{{ unauthorized_additions_found }}"
+        per_host: false
+      check_mode: false
+      tags: always
+
+    - name: Fail if drift detected
+      ansible.builtin.fail:
+        msg: "Configuration drift detected - triggering remediation workflow path"
+      when: drift_detected | bool
+      check_mode: false
+      tags: always

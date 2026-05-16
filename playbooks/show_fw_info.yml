@@ -1,52 +1,37 @@
 ---
-- name: Firewall basic operations
-  hosts: all
+- name: Show firewall info
+  hosts: pa_fw
   connection: local
   gather_facts: false
-  
 
   tasks:
     - name: Gather FW facts
-      #collects fact information from firewall
       paloaltonetworks.panos.panos_facts:
         provider: "{{ panos_provider }}"
         gather_subset: ["all"]
+      tags: facts
 
     - name: Print FW facts
-      #display facts we are interested in
       ansible.builtin.debug:
         msg:
           - "Hostname: {{ ansible_net_hostname }}"
           - "Version: {{ ansible_net_version }}"
           - "Uptime: {{ ansible_net_uptime }}"
+      tags: facts
 
     - name: Print whole configuration
-      #print whole configuration in json format
       ansible.builtin.debug:
         msg: "{{ ansible_net_config | ansible.utils.from_xml }}"
-
+      tags: facts
 
     - name: Get admin accounts info
-      #execute any operational mode command on FW
       paloaltonetworks.panos.panos_op:
         provider: "{{ panos_provider }}"
         cmd: "show admins all"
       register: admins_info
+      tags: admins
 
     - name: Print admin accounts info
-      #show list of administrators
       ansible.builtin.debug:
         msg: "{{ admins_info.stdout }}"
-
-
-    - name: Create admin account
-      #manage administrator user accounts
-      paloaltonetworks.panos.panos_administrator:
-        provider: "{{ panos_provider }}"
-        admin_username: "{{ item.value.username }}"
-        admin_password: "{{ item.value.password }}"
-        superuser: "yes"
-        commit: "False"
-        state: "{{ fw_admin_accounts_state | default('present') }}"
-      with_dict: "{{ administrators }}"
-      no_log: "True"
+      tags: admins

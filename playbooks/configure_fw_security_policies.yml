@@ -1,11 +1,10 @@
 ---
-- name: Create security policies
-  hosts: all
+- name: Configure security policies
+  hosts: pa_fw
   connection: local
   gather_facts: false
-  
-  tasks:
 
+  tasks:
     - name: Create security rules
       paloaltonetworks.panos.panos_security_rule:
         provider: "{{ panos_provider }}"
@@ -19,5 +18,5 @@
         action: "{{ item.action }}"
         commit: false
         state: "{{ fw_rules_state | default('present') }}"
-      with_items: "{{ fw_security_rules }}"
+      loop: "{{ fw_security_rules }}"
       tags: security_rules

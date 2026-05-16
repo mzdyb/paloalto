@@ -1,0 +1,11 @@
+---
+fw_zones:
+  - zone: "untrust"
+    mode: "layer3"
+    interfaces: ["ethernet1/1"]
+  - zone: "web"
+    mode: "layer3"
+    interfaces: ["ethernet1/2"]
+  - zone: "db"
+    mode: "layer3"
+    interfaces: ["ethernet1/3"]

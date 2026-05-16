@@ -1,11 +1,10 @@
 ---
 - name: Configure firewall
-  hosts: all
+  hosts: pa_fw
   connection: local
   gather_facts: false
-  
-  tasks:
 
+  tasks:
     - name: Configure FW interfaces
       paloaltonetworks.panos.panos_interface:
         provider: "{{ panos_provider }}"
@@ -15,26 +14,27 @@
         enable_dhcp: "{{ item.enable_dhcp }}"
         commit: false
         state: "{{ fw_config_state | default('present') }}"
-      with_items: "{{ fw_interfaces }}"
+      loop: "{{ fw_interfaces }}"
       tags: network
 
     - name: Configure virtual router
       paloaltonetworks.panos.panos_virtual_router:
         provider: "{{ panos_provider }}"
-        name: "default"
-        interface: [ 'ethernet1/1', 'ethernet1/2', 'ethernet1/3' ]
+        name: "{{ fw_virtual_router.name }}"
+        interface: "{{ fw_virtual_router.interfaces }}"
         commit: false
         state: "{{ fw_config_state | default('present') }}"
       tags: network
 
-    - name: Configure static route
+    - name: Configure static routes
       paloaltonetworks.panos.panos_static_route:
-        provider: '{{ panos_provider }}'
-        virtual_router: 'default'
-        name: 'default'
-        destination: '0.0.0.0/0'
-        nexthop: '10.0.0.2'
+        provider: "{{ panos_provider }}"
+        virtual_router: "{{ item.virtual_router }}"
+        name: "{{ item.name }}"
+        destination: "{{ item.destination }}"
+        nexthop: "{{ item.nexthop }}"
         state: "{{ fw_config_state | default('present') }}"
+      loop: "{{ fw_static_routes }}"
       tags: network
 
     - name: Configure zones
@@ -44,15 +44,15 @@
         mode: "{{ item.mode }}"
         interface: "{{ item.interfaces }}"
         state: "{{ fw_config_state | default('present') }}"
-      with_items: "{{ fw_zones }}"
+      loop: "{{ fw_zones }}"
       tags: zones
 
     - name: Create address objects
       paloaltonetworks.panos.panos_address_object:
-        provider: '{{ panos_provider }}'
-        name: '{{ item.name }}'
-        value: '{{ item.value }}'
+        provider: "{{ panos_provider }}"
+        name: "{{ item.name }}"
+        value: "{{ item.value }}"
         commit: false
         state: "{{ fw_config_state | default('present') }}"
-      with_items: '{{ fw_address_objects }}'
+      loop: "{{ fw_address_objects }}"
       tags: objects

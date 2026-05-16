@@ -1,0 +1,22 @@
+---
+- name: Commit firewall config
+  hosts: pa_fw
+  connection: local
+  gather_facts: false
+
+  tasks:
+    - name: Check firewall connectivity
+      paloaltonetworks.panos.panos_op:
+        provider: "{{ panos_provider }}"
+        cmd: "show system info"
+      register: connectivity_check
+
+    - name: Commit configuration
+      paloaltonetworks.panos.panos_commit_firewall:
+        provider: "{{ panos_provider }}"
+      register: commit_result
+
+    - name: Display commit result
+      ansible.builtin.debug:
+        msg: "Commit completed successfully"
+      when: commit_result is succeeded

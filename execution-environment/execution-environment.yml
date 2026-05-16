@@ -1,15 +1,21 @@
 ---
-version: 1
- 
-build_arg_defaults:
-#  EE_BASE_IMAGE: 'hub.rh.lab/ee-supported-rhel8:latest'
-  ANSIBLE_GALAXY_CLI_COLLECTION_OPTS: '--ignore-certs'
-  EE_BASE_IMAGE: registry.redhat.io/ansible-automation-platform-25/ee-minimal-rhel8:latest
-#Ansible Builder doesn't support --ignore-certs, whereas the ansible-galaxy command supports this option
+version: 3
 
-ansible_config: 'ansible.cfg'
+images:
+  base_image:
+    name: registry.redhat.io/ansible-automation-platform-25/ee-minimal-rhel9:latest
+
+options:
+  package_manager_path: /usr/bin/microdnf
 
 dependencies:
-  galaxy: requirements.yml
-  python: requirements.txt
-#  system: bindep.txt 
+  galaxy:
+    collections:
+      - name: ansible.utils
+        version: ">=3.0.0"
+      - name: paloaltonetworks.panos
+        version: ">=2.21.0"
+  python:
+    - pan-os-python>=1.12.0
+    - xmltodict>=0.13.0
+    - panos-upgrade-assurance>=0.4.0

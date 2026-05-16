@@ -4,16 +4,12 @@
   connection: local
 
   tasks:
-    - name: Debug credential env vars
-      ansible.builtin.debug:
-        msg:
-          - "ENV username: {{ lookup('env', 'PANOS_USERNAME') }}"
-          - "ENV password length: {{ lookup('env', 'PANOS_PASSWORD') }}"
-      tags: always
-
     - name: Gather FW facts
       paloaltonetworks.panos.panos_facts:
-        provider: "{{ panos_provider }}"
+        ip_address: "{{ ansible_host }}"
+        username: "admin"
+        password: "Redhat123"
+        # provider: "{{ panos_provider }}"
         gather_subset: ["all"]
       tags: facts
 

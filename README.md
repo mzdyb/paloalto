@@ -60,7 +60,7 @@ ansible-builder build -t aap.rh.lab/ee-panos:1.0 -v3
 
 #### The Problem
 
-Firewall engineers routinely make out-of-band changes directly on the firewall (emergency fixes, troubleshooting rules, manual tweaks). Over time, the live firewall configuration diverges from the desired state defined in the Ansible variable files. This "configuration drift" creates security risks and makes the YAML files unreliable as a source of truth.
+Firewall engineers can make configuration changes directly on firewalls through the GUI, such as emergency fixes, troubleshooting rules or manual tweaks. As a result, over time, the live firewall configuration can diverge from the desired state defined in Ansible variable files. This configuration drift creates security risks and makes the YAML files unreliable as a source of truth.
 
 #### Two Types of Drift
 
@@ -77,6 +77,8 @@ Detection method: Ansible `check_mode` with `diff` mode. Each configuration modu
 Example: An engineer added a temporary "Allow Vendor Access" security rule directly on the firewall.
 
 Detection method: The `state: gathered` parameter retrieves all live items from the firewall. The Jinja2 `difference` filter compares gathered items against the YAML-defined items to find anything extra.
+
+Combining both types of drift into a single `state: gathered` method would require writing custom Jinja2 dict comparison logic for each resource type and filtering out extra fields that the firewall returns but are not defined in the YAML. So in this project two detection methods are used to make the solution simpler.
 
 **Known limitation:** The `panos_interface` module has a bug where `check_mode` always reports `changed: true` regardless of actual state. Interface drift results are shown in the report as informational but are excluded from the `drift_detected` flag. Support ticket has been opened for this module issue at the time of creating this project.
 

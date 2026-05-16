@@ -46,7 +46,7 @@
       loop: "{{ fw_zones }}"
       tags: zones
 
-    - name: Create address objects
+    - name: Configure address objects
       paloaltonetworks.panos.panos_address_object:
         provider: "{{ panos_provider }}"
         name: "{{ item.name }}"

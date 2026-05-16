@@ -6,10 +6,7 @@
   tasks:
     - name: Gather FW facts
       paloaltonetworks.panos.panos_facts:
-        ip_address: "{{ ansible_host }}"
-        username: "admin"
-        password: "Redhat123"
-        # provider: "{{ panos_provider }}"
+        provider: "{{ panos_provider }}"
         gather_subset: ["all"]
       tags: facts
 
@@ -25,11 +22,6 @@
       ansible.builtin.debug:
         msg: "{{ ansible_net_config | ansible.utils.from_xml }}"
       tags: facts
-
-    - name: Debug resolved panos_provider
-      ansible.builtin.debug:
-        var: panos_provider
-      tags: always
 
     - name: Get admin accounts info
       paloaltonetworks.panos.panos_op:

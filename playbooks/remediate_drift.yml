@@ -19,7 +19,6 @@
 - name: Remove unauthorized configuration
   hosts: pa_fw
   connection: local
-  gather_facts: false
 
   tasks:
     - name: Gather live security rules
@@ -118,7 +117,6 @@
 - name: Verify remediation
   hosts: pa_fw
   connection: local
-  gather_facts: false
 
   tasks:
     - name: Verify firewall is reachable after remediation

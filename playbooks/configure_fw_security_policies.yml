@@ -2,7 +2,6 @@
 - name: Configure security policies
   hosts: pa_fw
   connection: local
-  gather_facts: false
 
   tasks:
     - name: Create security rules

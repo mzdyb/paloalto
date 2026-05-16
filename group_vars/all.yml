@@ -7,5 +7,5 @@ ansible_python_interpreter: "{{ ansible_playbook_python }}"
 #   - Ansible Vault encrypted vars file
 panos_provider:
   ip_address: "{{ ansible_host }}"
-  username: "{{ panos_username }}"
-  password: "{{ panos_password }}"
+  username: "{{ lookup('env', 'PANOS_USERNAME') | default(panos_username, true) }}"
+  password: "{{ lookup('env', 'PANOS_PASSWORD') | default(panos_password, true) }}"

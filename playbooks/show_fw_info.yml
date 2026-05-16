@@ -26,6 +26,11 @@
         msg: "{{ ansible_net_config | ansible.utils.from_xml }}"
       tags: facts
 
+    - name: Debug resolved panos_provider
+      ansible.builtin.debug:
+        var: panos_provider
+      tags: always
+
     - name: Get admin accounts info
       paloaltonetworks.panos.panos_op:
         provider: "{{ panos_provider }}"

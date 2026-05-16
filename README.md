@@ -93,46 +93,29 @@ The `remediate_drift.yml` playbook restores the firewall to the exact state defi
 
 #### Workflow 1: Firewall Provisioning
 
-Applies full configuration to a new or factory-reset firewall.
-
-```
-[Configure Network] ──▶ [Configure Security Policies] ──▶ [Commit Config] ──▶ [Show Info]
-```
-
-No extra vars needed — playbooks default to `state: present`. No backup step since this targets firewalls with no existing config to preserve. Show Info at the end provides verification output in the job log.
+Applies full configuration to a new or factory-reset firewall  
+![provision firewall](<files/paloalto - provision firewall.png>)
 
 #### Workflow 2: Firewall Deprovisioning
 
-Removes all managed configuration (e.g., decommissioning a firewall or resetting to clean state).
+Removes all provisioned configuration  
+![deprovision firewall](<files/paloalto - deprovision firewall.png>)
 
-```
-[Backup Config] ──▶ [Configure Security Policies] ──▶ [Configure Network] ──▶ [Commit Config]
-                       (fw_rules_state=absent)          (fw_config_state=absent)
-```
-
-Order matters: security policies are removed before network config because rules reference zones and objects that network config creates. Set `fw_rules_state: absent` and `fw_config_state: absent` as extra vars on the respective workflow nodes.
+Extra vars `fw_rules_state: absent` and `fw_config_state: absent` are set on the respective workflow nodes.
 
 #### Workflow 3: Day 2 Configuration Change
 
-Safe change workflow for modifying existing firewall configuration. Engineer updates host_vars in Git, then triggers this workflow.
+Modifies existing firewall configuration  
+![day 2 configuration change](<files/paloalto - day 2 configuration change.png>)
 
-```
-[Backup Config] ──▶ [Configure Network] ──▶ [Configure Security Policies] ──▶ [Commit Config] ──▶ [Detect Drift]
-```
-
-Backup captures the pre-change state. After commit, Detect Drift verifies that the firewall matches the source of truth (expected result: `drift_detected: false`).
 
 #### Workflow 4: Drift Detection & Remediation
 
-Scheduled workflow that detects drift and conditionally triggers remediation with human approval.
+Workflow that detects drift and conditionally triggers remediation with human approval  
+![drift detection and remediation](<files/paloalto - drift detection and remediation.png>)
 
-```
-[Detect Drift] ──▶ drift_detected == true  ──▶ [Approval Node] ──▶ [Remediate Drift]
-               │
-               └── drift_detected == false ──▶ [No Action]
-```
-
-The conditional branching works because `detect_drift.yml` exports `drift_detected` via `set_stats`. AAP evaluates this variable to decide which branch to follow. Schedule nightly (e.g., 2:00 AM) or after maintenance windows. Attach a notification template (email/Slack) to the Approval Node so engineers are alerted when drift is found.
+It can be scheduled to run periodically
+To do: slack notification playbook and node.
 
 ### Credential Configuration
 

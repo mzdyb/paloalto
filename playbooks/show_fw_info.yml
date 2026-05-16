@@ -8,7 +8,7 @@
       ansible.builtin.debug:
         msg:
           - "ENV username: {{ lookup('env', 'PANOS_USERNAME') }}"
-          - "ENV password length: {{ lookup('env', 'PANOS_PASSWORD') | length }}"
+          - "ENV password length: {{ lookup('env', 'PANOS_PASSWORD') }}"
       tags: always
 
     - name: Gather FW facts

@@ -6,7 +6,7 @@ This demo project contains Ansible playbooks for automating Palo Alto firewall o
 - Configuration drift detection
 - Configuration drift remediation
 
-It uses the `paloaltonetworks.panos` Ansible collection and a custom Execution Environment.
+It uses the `paloaltonetworks.panos` Ansible collection and a custom Execution Environment (EE).
 
 The project is designed for Red Hat Ansible Automation Platform (AAP), where it can use platform capabilities such as Automation Workflows, Custom Credentials, Schedulers and Event-Driven Automation. It can also be run from the command line using `ansible-navigator`.
 
@@ -31,7 +31,7 @@ Provide credentials using one of these methods:
    ```
 
 ### Building the EE
-Playbooks run inside a container-based Execution Environment (EE) built with `ansible-builder`. The EE packages all required collections and Python dependencies.
+Playbooks run inside a container-based Execution Environment built with `ansible-builder`. The EE packages all required collections and Python dependencies.
 
 ```bash
 cd execution-environment/

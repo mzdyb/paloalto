@@ -5,7 +5,7 @@
   gather_facts: false
 
   vars:
-    backup_dir: "{{ fw_backup_dir | default('/tmp/fw_backups') }}"
+    backup_dir: "{{ fw_backup_dir | default('../backups') }}"
 
   tasks:
     - name: Ensure backup directory exists

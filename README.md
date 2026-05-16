@@ -147,7 +147,11 @@ extra_vars:
   panos_password: "{{ panos_password }}"
 ```
 
+## AAP Configuration as Code
+
+The AAP Workflows used in this project are managed using a Configuration as Code approach. Their configuration is stored in a separate repository:  
+https://github.com/mzdyb/aap-configuration-as-code
 
 ## Author
 
-[Michal Zdyb](https://www.linkedin.com/in/michal-zdyb-9aa4046/)
+[@mzdyb](https://www.linkedin.com/in/michal-zdyb-9aa4046/)

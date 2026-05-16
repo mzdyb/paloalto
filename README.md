@@ -89,6 +89,8 @@ The `remediate_drift.yml` playbook restores the firewall to the exact state defi
 
 ## AAP Integration
 
+The following automation workflows have been created on AAP.
+
 ### Workflow Job Templates
 
 #### Workflow 1: Firewall Provisioning
@@ -98,7 +100,7 @@ Applies full configuration to a new or factory-reset firewall
 
 #### Workflow 2: Firewall Deprovisioning
 
-Removes all provisioned configuration  
+Removes all the provisioned configuration  
 ![deprovision firewall](<files/paloalto - deprovision firewall.png>)
 
 Extra vars `fw_rules_state: absent` and `fw_config_state: absent` are set on the respective workflow nodes.
@@ -111,10 +113,10 @@ Modifies existing firewall configuration
 
 #### Workflow 4: Drift Detection & Remediation
 
-Workflow that detects drift and conditionally triggers remediation with human approval  
+Detects drift and conditionally triggers remediation with human approval  
 ![drift detection and remediation](<files/paloalto - drift detection and remediation.png>)
 
-It can be scheduled to run periodically
+It can be scheduled to run periodically.
 To do: slack notification playbook and node.
 
 ### Credential Configuration

@@ -225,6 +225,8 @@
     - name: Fail if drift detected
       ansible.builtin.fail:
         msg: "Configuration drift detected - triggering remediation workflow path"
-      when: drift_detected | bool
+      when:
+        - drift_detected | bool
+        - drift_fail_on_detect | default(true) | bool
       check_mode: false
       tags: always

@@ -7,6 +7,7 @@ fw_static_routes:
   - name: "default"
     destination: "0.0.0.0/0"
     nexthop: "10.0.0.2"
+    metric: 10
     virtual_router: "default"
 
 fw_interfaces:
@@ -14,11 +15,14 @@ fw_interfaces:
     mode: "layer3"
     ip: ["10.0.0.1/30"]
     enable_dhcp: false
+    create_default_route: false
   - if_name: "ethernet1/2"
     mode: "layer3"
     ip: ["10.0.1.1/24"]
     enable_dhcp: false
+    create_default_route: false
   - if_name: "ethernet1/3"
     mode: "layer3"
     ip: ["10.0.2.1/24"]
     enable_dhcp: false
+    create_default_route: false

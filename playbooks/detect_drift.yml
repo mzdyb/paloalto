@@ -14,6 +14,8 @@
         if_name: "{{ item.if_name }}"
         mode: "{{ item.mode }}"
         ip: "{{ item.ip }}"
+        enable_dhcp: "{{ item.enable_dhcp }}"
+        create_default_route: "{{ item.create_default_route }}"
         commit: false
         state: "{{ fw_config_state | default('present') }}"
       loop: "{{ fw_interfaces }}"
@@ -41,6 +43,7 @@
         name: "{{ item.name }}"
         destination: "{{ item.destination }}"
         nexthop: "{{ item.nexthop }}"
+        metric: "{{ item.metric }}"
         state: "{{ fw_config_state | default('present') }}"
       loop: "{{ fw_static_routes }}"
       register: route_drift
@@ -54,6 +57,7 @@
         zone: "{{ item.zone }}"
         mode: "{{ item.mode }}"
         interface: "{{ item.interfaces }}"
+        enable_userid: "{{ item.enable_userid }}"
         state: "{{ fw_config_state | default('present') }}"
       loop: "{{ fw_zones }}"
       register: zone_drift
@@ -80,11 +84,19 @@
         rule_name: "{{ item.rule_name }}"
         source_zone: "{{ item.source_zone }}"
         source_ip: "{{ item.source_ip }}"
+        source_user: "{{ item.source_user }}"
         destination_zone: "{{ item.destination_zone }}"
         destination_ip: "{{ item.destination_ip }}"
         application: "{{ item.application }}"
         service: "{{ item.service }}"
+        category: "{{ item.category }}"
         action: "{{ item.action }}"
+        log_start: "{{ item.log_start }}"
+        log_end: "{{ item.log_end }}"
+        rule_type: "{{ item.rule_type }}"
+        negate_source: "{{ item.negate_source }}"
+        negate_destination: "{{ item.negate_destination }}"
+        disabled: "{{ item.disabled }}"
         commit: false
         state: "{{ fw_rules_state | default('present') }}"
       loop: "{{ fw_security_rules }}"
@@ -149,34 +161,35 @@
       check_mode: false
       tags: drift_unauthorized
 
-    # =========================================================
-    # Phase 3: Drift report and AAP workflow stats
-    # =========================================================
 
-    - name: Compute drift status
+    # Phase 3: Drift report
+    - name: Collect drifted items
       ansible.builtin.set_fact:
-        # panos_interface check_mode always reports changed (module bug) — excluded from modification_drift_found
-        interface_drift_found: >-
-          {{ interface_drift.results | default([]) | selectattr('changed', 'equalto', true) | list | length > 0 }}
-        modification_drift_found: >-
-          {{
-            (vrouter_drift.changed | default(false)) or
-            (route_drift.results | default([]) | selectattr('changed', 'equalto', true) | list | length > 0) or
-            (zone_drift.results | default([]) | selectattr('changed', 'equalto', true) | list | length > 0) or
-            (address_drift.results | default([]) | selectattr('changed', 'equalto', true) | list | length > 0) or
-            (security_drift.results | default([]) | selectattr('changed', 'equalto', true) | list | length > 0)
-          }}
-        unauthorized_additions_found: >-
-          {{
-            (unauthorized_rules | length > 0) or
-            (unauthorized_objects | length > 0) or
-            (unauthorized_zones | length > 0) or
-            (unauthorized_routes | length > 0)
-          }}
+        drifted_interfaces: "{{ interface_drift.results | default([]) | selectattr('changed', 'equalto', true) | map(attribute='item.if_name') | list }}"
+        drifted_routes: "{{ route_drift.results | default([]) | selectattr('changed', 'equalto', true) | map(attribute='item.name') | list }}"
+        drifted_zones: "{{ zone_drift.results | default([]) | selectattr('changed', 'equalto', true) | map(attribute='item.zone') | list }}"
+        drifted_objects: "{{ address_drift.results | default([]) | selectattr('changed', 'equalto', true) | map(attribute='item.name') | list }}"
+        drifted_rules: "{{ security_drift.results | default([]) | selectattr('changed', 'equalto', true) | map(attribute='item.rule_name') | list }}"
       check_mode: false
       tags: always
 
-    - name: Set overall drift detected flag
+    - name: Compute drift status
+      ansible.builtin.set_fact:
+        modification_drift_found: >-
+          {{ (vrouter_drift.changed | default(false)) or
+             drifted_routes | length > 0 or
+             drifted_zones | length > 0 or
+             drifted_objects | length > 0 or
+             drifted_rules | length > 0 }}
+        unauthorized_additions_found: >-
+          {{ (unauthorized_rules | length > 0) or
+             (unauthorized_objects | length > 0) or
+             (unauthorized_zones | length > 0) or
+             (unauthorized_routes | length > 0) }}
+      check_mode: false
+      tags: always
+
+    - name: Set drift detected flag
       ansible.builtin.set_fact:
         drift_detected: "{{ modification_drift_found or unauthorized_additions_found }}"
       check_mode: false
@@ -191,12 +204,12 @@
           - "======================================"
           - ""
           - "MODIFIED CONFIGURATION (would be corrected by remediation):"
-          - "  Interfaces: {{ interface_drift.results | default([]) | selectattr('changed', 'equalto', true) | map(attribute='item.if_name') | list | join(', ') | default('none', true) }} (unreliable - module bug)"
+          - "  Interfaces: {{ drifted_interfaces | join(', ') | default('none', true) }} (excluded due to module bug)"
           - "  Virtual router: {{ 'DRIFTED' if (vrouter_drift.changed | default(false)) else 'none' }}"
-          - "  Static routes: {{ route_drift.results | default([]) | selectattr('changed', 'equalto', true) | map(attribute='item.name') | list | join(', ') | default('none', true) }}"
-          - "  Zones: {{ zone_drift.results | default([]) | selectattr('changed', 'equalto', true) | map(attribute='item.zone') | list | join(', ') | default('none', true) }}"
-          - "  Address objects: {{ address_drift.results | default([]) | selectattr('changed', 'equalto', true) | map(attribute='item.name') | list | join(', ') | default('none', true) }}"
-          - "  Security rules: {{ security_drift.results | default([]) | selectattr('changed', 'equalto', true) | map(attribute='item.rule_name') | list | join(', ') | default('none', true) }}"
+          - "  Static routes: {{ drifted_routes | join(', ') | default('none', true) }}"
+          - "  Zones: {{ drifted_zones | join(', ') | default('none', true) }}"
+          - "  Address objects: {{ drifted_objects | join(', ') | default('none', true) }}"
+          - "  Security rules: {{ drifted_rules | join(', ') | default('none', true) }}"
           - ""
           - "UNAUTHORIZED ADDITIONS (not in source of truth, would be removed):"
           - "  Security rules: {{ unauthorized_rules | join(', ') | default('none', true) }}"
@@ -206,16 +219,6 @@
           - ""
           - "Overall drift detected: {{ drift_detected }}"
           - "======================================"
-      check_mode: false
-      tags: always
-
-    - name: Set stats for AAP workflow
-      ansible.builtin.set_stats:
-        data:
-          drift_detected: "{{ drift_detected }}"
-          modification_drift_found: "{{ modification_drift_found }}"
-          unauthorized_additions_found: "{{ unauthorized_additions_found }}"
-        per_host: false
       check_mode: false
       tags: always
 

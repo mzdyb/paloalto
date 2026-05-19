@@ -44,7 +44,7 @@ ansible-builder build -t aap.rh.lab/ee-panos:1.0 -v3
 
 This project follows a Configuration-as-Code approach: the firewall configuration is defined declaratively in YAML variable files (`host_vars/fw1/`) and applied through Ansible playbooks. Instead of making changes manually through the firewall GUI, engineers modify version-controlled YAML files and run playbooks to push the desired state to the firewall.
 
-This approach provides several benefits. All changes are tracked in Git with a full audit trail and deployments are repeatable and consistent across firewalls. It also allows the YAML files to serve as the source of truth for firewall configuration and provides a foundation for drift detection and remediation.
+This approach provides significant benefits. All changes are tracked in Git with a full audit trail and deployments are repeatable and consistent across firewalls. It also allows the YAML files to serve as the source of truth for firewall configuration and provides a foundation for drift detection and remediation.
 
 
 1. **Apply configuration:**

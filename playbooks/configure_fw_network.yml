@@ -4,6 +4,16 @@
   connection: local
 
   tasks:
+    - name: Configure zones
+      paloaltonetworks.panos.panos_zone:
+        provider: "{{ panos_provider }}"
+        zone: "{{ item.zone }}"
+        mode: "{{ item.mode }}"
+        interface: "{{ item.interfaces }}"
+        state: "{{ fw_config_state | default('present') }}"
+      loop: "{{ fw_zones }}"
+      tags: zones
+
     - name: Configure FW interfaces
       paloaltonetworks.panos.panos_interface:
         provider: "{{ panos_provider }}"
@@ -32,19 +42,10 @@
         name: "{{ item.name }}"
         destination: "{{ item.destination }}"
         nexthop: "{{ item.nexthop }}"
+        metric: "{{ item.metric }}"
         state: "{{ fw_config_state | default('present') }}"
       loop: "{{ fw_static_routes }}"
       tags: network
-
-    - name: Configure zones
-      paloaltonetworks.panos.panos_zone:
-        provider: "{{ panos_provider }}"
-        zone: "{{ item.zone }}"
-        mode: "{{ item.mode }}"
-        interface: "{{ item.interfaces }}"
-        state: "{{ fw_config_state | default('present') }}"
-      loop: "{{ fw_zones }}"
-      tags: zones
 
     - name: Configure address objects
       paloaltonetworks.panos.panos_address_object:

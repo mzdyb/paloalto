@@ -3,44 +3,84 @@ fw_security_rules:
   - rule_name: "Allow ping"
     source_zone: ["any"]
     source_ip: ["any"]
+    source_user: ["any"]
     destination_zone: ["any"]
     destination_ip: ["any"]
     application: ["ping"]
     service: ["application-default"]
+    category: ["any"]
     action: "allow"
+    log_start: false
+    log_end: true
+    rule_type: "universal"
+    negate_source: false
+    negate_destination: false
+    disabled: false
 
   - rule_name: "Allow SSH inbound"
     source_zone: ["untrust"]
     source_ip: ["any"]
+    source_user: ["any"]
     destination_zone: ["web", "db"]
     destination_ip: ["any"]
     application: ["ssh"]
     service: ["application-default"]
+    category: ["any"]
     action: "allow"
+    log_start: false
+    log_end: true
+    rule_type: "universal"
+    negate_source: false
+    negate_destination: false
+    disabled: false
 
   - rule_name: "Allow inbound web"
     source_zone: ["untrust"]
     source_ip: ["any"]
+    source_user: ["any"]
     destination_zone: ["web"]
     destination_ip: ["any"]
     application: ["web-browsing", "ssl"]
     service: ["application-default"]
+    category: ["any"]
     action: "allow"
+    log_start: false
+    log_end: true
+    rule_type: "universal"
+    negate_source: false
+    negate_destination: false
+    disabled: false
 
   - rule_name: "Allow web to db"
     source_zone: ["web"]
     source_ip: ["web-server"]
+    source_user: ["any"]
     destination_zone: ["db"]
     destination_ip: ["db-server"]
     application: ["mysql"]
     service: ["application-default"]
+    category: ["any"]
     action: "allow"
+    log_start: false
+    log_end: true
+    rule_type: "universal"
+    negate_source: false
+    negate_destination: false
+    disabled: false
 
   - rule_name: "Allow all outbound"
     source_zone: ["web", "db"]
     source_ip: ["any"]
+    source_user: ["any"]
     destination_zone: ["untrust"]
     destination_ip: ["any"]
     application: ["any"]
     service: ["application-default"]
+    category: ["any"]
     action: "allow"
+    log_start: false
+    log_end: true
+    rule_type: "universal"
+    negate_source: false
+    negate_destination: false
+    disabled: false

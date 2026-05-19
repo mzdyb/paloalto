@@ -2,7 +2,6 @@
 - name: Backup firewall running configuration
   hosts: pa_fw
   connection: local
-
   vars:
     backup_dir: "{{ fw_backup_dir | default('../backups') }}"
 

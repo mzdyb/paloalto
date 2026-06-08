@@ -35,4 +35,4 @@ fw_interfaces:
     ip: ["10.0.3.1/24"]
     enable_dhcp: false
     create_default_route: false
-    state: absent
+    state: present

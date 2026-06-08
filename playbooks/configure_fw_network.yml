@@ -14,6 +14,7 @@
         commit: false
         state: "{{ fw_config_state | default('present') }}"
       loop: "{{ fw_interfaces }}"
+      changed_when: false
       tags: network
 
     - name: Configure virtual router

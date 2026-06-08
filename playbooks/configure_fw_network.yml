@@ -12,7 +12,7 @@
         ip: "{{ item.ip }}"
         enable_dhcp: "{{ item.enable_dhcp }}"
         commit: false
-        state: "{{ fw_config_state | default('present') }}"
+        state: "{{ fw_config_state | default(item.state | default('present')) }}"
       loop: "{{ fw_interfaces }}"
       changed_when: false
       tags: network
@@ -34,7 +34,7 @@
         destination: "{{ item.destination }}"
         nexthop: "{{ item.nexthop }}"
         metric: "{{ item.metric }}"
-        state: "{{ fw_config_state | default('present') }}"
+        state: "{{ fw_config_state | default(item.state | default('present')) }}"
       loop: "{{ fw_static_routes }}"
       tags: network
 
@@ -45,7 +45,7 @@
         mode: "{{ item.mode }}"
         interface: "{{ item.interfaces }}"
         enable_userid: "{{ item.enable_userid }}"
-        state: "{{ fw_config_state | default('present') }}"
+        state: "{{ fw_config_state | default(item.state | default('present')) }}"
       loop: "{{ fw_zones }}"
       tags: zones
 
@@ -55,6 +55,6 @@
         name: "{{ item.name }}"
         value: "{{ item.value }}"
         commit: false
-        state: "{{ fw_config_state | default('present') }}"
+        state: "{{ fw_config_state | default(item.state | default('present')) }}"
       loop: "{{ fw_address_objects }}"
       tags: objects

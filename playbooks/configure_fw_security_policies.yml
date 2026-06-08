@@ -24,6 +24,6 @@
         negate_destination: "{{ item.negate_destination }}"
         disabled: "{{ item.disabled }}"
         commit: false
-        state: "{{ fw_rules_state | default('present') }}"
+        state: "{{ fw_rules_state | default(item.state | default('present')) }}"
       loop: "{{ fw_security_rules }}"
       tags: security_rules

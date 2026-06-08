@@ -2,5 +2,7 @@
 fw_address_objects:
   - name: "web-server"
     value: "10.0.1.100"
+    state: present
   - name: "db-server"
     value: "10.0.2.100"
+    state: present

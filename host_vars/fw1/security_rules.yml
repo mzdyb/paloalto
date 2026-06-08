@@ -16,6 +16,7 @@ fw_security_rules:
     negate_source: false
     negate_destination: false
     disabled: false
+    state: present
 
   - rule_name: "Allow SSH inbound"
     source_zone: ["untrust"]
@@ -33,6 +34,7 @@ fw_security_rules:
     negate_source: false
     negate_destination: false
     disabled: false
+    state: present
 
   - rule_name: "Allow inbound web"
     source_zone: ["untrust"]
@@ -50,6 +52,7 @@ fw_security_rules:
     negate_source: false
     negate_destination: false
     disabled: false
+    state: present
 
   - rule_name: "Allow web to db"
     source_zone: ["web"]
@@ -67,6 +70,7 @@ fw_security_rules:
     negate_source: false
     negate_destination: false
     disabled: false
+    state: present
 
   - rule_name: "Allow all outbound"
     source_zone: ["web", "db"]
@@ -84,3 +88,4 @@ fw_security_rules:
     negate_source: false
     negate_destination: false
     disabled: false
+    state: present

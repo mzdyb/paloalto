@@ -4,11 +4,14 @@ fw_zones:
     mode: "layer3"
     interfaces: ["ethernet1/1"]
     enable_userid: false
+    state: present
   - zone: "web"
     mode: "layer3"
     interfaces: ["ethernet1/2"]
     enable_userid: false
+    state: present
   - zone: "db"
     mode: "layer3"
     interfaces: ["ethernet1/3"]
     enable_userid: false
+    state: present

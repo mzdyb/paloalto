@@ -3,7 +3,7 @@
   hosts: pa_fw
   connection: local
   vars:
-    backup_dir: "{{ fw_backup_dir | default('../backups') }}"
+    backup_dir: "{{ fw_backup_dir | default('/backups') }}"
 
   tasks:
     - name: Ensure backup directory exists

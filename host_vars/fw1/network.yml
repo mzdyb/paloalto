@@ -36,3 +36,9 @@ fw_interfaces:
     enable_dhcp: false
     create_default_route: false
     state: present
+  - if_name: "ethernet1/5"
+    mode: "layer3"
+    ip: ["10.0.4.1/24"]
+    enable_dhcp: false
+    create_default_route: false
+    state: present

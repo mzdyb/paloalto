@@ -23,7 +23,7 @@
         name: "{{ fw_virtual_router.name }}"
         interface: "{{ fw_virtual_router.interfaces }}"
         commit: false
-        state: "{{ fw_config_state | default('present') }}"
+        state: "{{ fw_config_state | default(fw_virtual_router.state | default('present')) }}"
       tags: network
 
     - name: Configure static routes

@@ -80,8 +80,6 @@ Example: An interface IP address was changed from `10.0.1.1/24` to `10.0.1.5/24`
 Example: An engineer added a temporary "Allow Vendor Access" security rule directly on the firewall.
 
 
-**Known limitation:** The `panos_interface` module has a bug where `check_mode` always reports `changed: true` regardless of actual state. Interface drift results are shown in the report as informational but are excluded from the `drift_detected` flag
-
 ### Configuration Drift Remediation
 
 The `remediate_drift.yml` playbook restores the firewall to the exact state defined in the YAML source of truth. It handles both types of drift: it corrects modifications and removes unauthorized additions.

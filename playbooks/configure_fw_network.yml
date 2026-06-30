@@ -11,10 +11,11 @@
         mode: "{{ item.mode }}"
         ip: "{{ item.ip }}"
         enable_dhcp: "{{ item.enable_dhcp }}"
+        vr_name: "{{ item.vr_name | default('default') }}"
+        zone_name: "{{ item.zone_name | default(omit) }}"
         commit: false
         state: "{{ fw_config_state | default(item.state | default('present')) }}"
       loop: "{{ fw_interfaces }}"
-      changed_when: false
       tags: network
 
     - name: Configure virtual router

@@ -181,7 +181,8 @@
     - name: Compute drift status
       ansible.builtin.set_fact:
         modification_drift_found: >-
-          {{ (vrouter_drift.changed | default(false)) or
+          {{ drifted_interfaces | length > 0 or
+             (vrouter_drift.changed | default(false)) or
              drifted_routes | length > 0 or
              drifted_zones | length > 0 or
              drifted_objects | length > 0 or
@@ -209,7 +210,7 @@
           - "======================================"
           - ""
           - "MODIFIED CONFIGURATION (would be corrected by remediation):"
-          - "  Interfaces: {{ drifted_interfaces | join(', ') | default('none', true) }} (excluded due to module bug)"
+          - "  Interfaces: {{ drifted_interfaces | join(', ') | default('none', true) }}"
           - "  Virtual router: {{ 'DRIFTED' if (vrouter_drift.changed | default(false)) else 'none' }}"
           - "  Static routes: {{ drifted_routes | join(', ') | default('none', true) }}"
           - "  Zones: {{ drifted_zones | join(', ') | default('none', true) }}"

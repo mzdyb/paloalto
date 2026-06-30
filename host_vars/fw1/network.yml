@@ -1,7 +1,7 @@
 ---
 fw_virtual_router:
   name: "default"
-  interfaces: ["ethernet1/1", "ethernet1/2", "ethernet1/3"]
+  interfaces: ["ethernet1/1", "ethernet1/2", "ethernet1/3", "ethernet1/4", "ethernet1/5"]
   state: present
 
 fw_static_routes:
@@ -18,28 +18,36 @@ fw_interfaces:
     ip: ["10.0.0.1/30"]
     enable_dhcp: false
     create_default_route: false
+    vr_name: default
+    zone_name: untrust
     state: present
   - if_name: "ethernet1/2"
     mode: "layer3"
     ip: ["10.0.1.1/24"]
     enable_dhcp: false
     create_default_route: false
+    vr_name: default
+    zone_name: web
     state: present
   - if_name: "ethernet1/3"
     mode: "layer3"
     ip: ["10.0.2.1/24"]
     enable_dhcp: false
     create_default_route: false
+    vr_name: default
+    zone_name: db
     state: present
   - if_name: "ethernet1/4"
     mode: "layer3"
     ip: ["10.0.3.1/24"]
     enable_dhcp: false
     create_default_route: false
+    vr_name: default
     state: present
   - if_name: "ethernet1/5"
     mode: "layer3"
     ip: ["10.0.4.1/24"]
     enable_dhcp: false
     create_default_route: false
+    vr_name: default
     state: present

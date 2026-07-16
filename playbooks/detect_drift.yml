@@ -168,6 +168,17 @@
       check_mode: false
       tags: drift_unauthorized
 
+    - name: Compare rulebase order
+      ansible.builtin.set_fact:
+        rule_order_drift: >-
+          {{ (expected_rule_order | select('in', live_rule_order) | list)
+             != (live_rule_order | select('in', expected_rule_order) | list) }}
+      vars:
+        expected_rule_order: "{{ fw_security_rules | map(attribute='rule_name') | list }}"
+        live_rule_order: "{{ live_rules.gathered | default([]) | map(attribute='rule_name') | list }}"
+      check_mode: false
+      tags: drift_unauthorized
+
 
     # Phase 3: Drift report
     - name: Collect drifted items
@@ -188,7 +199,8 @@
              drifted_routes | length > 0 or
              drifted_zones | length > 0 or
              drifted_objects | length > 0 or
-             drifted_rules | length > 0 }}
+             drifted_rules | length > 0 or
+             (rule_order_drift | default(false) | bool) }}
         unauthorized_additions_found: >-
           {{ (unauthorized_rules | length > 0) or
              (unauthorized_objects | length > 0) or
@@ -218,6 +230,7 @@
           - "  Zones: {{ drifted_zones | join(', ') | default('none', true) }}"
           - "  Address objects: {{ drifted_objects | join(', ') | default('none', true) }}"
           - "  Security rules: {{ drifted_rules | join(', ') | default('none', true) }}"
+          - "  Security rule order: {{ 'DRIFTED' if (rule_order_drift | default(false) | bool) else 'none' }}"
           - ""
           - "UNAUTHORIZED ADDITIONS (not in source of truth, would be removed):"
           - "  Security rules: {{ unauthorized_rules | join(', ') | default('none', true) }}"

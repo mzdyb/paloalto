@@ -71,9 +71,9 @@ Firewall engineers can make configuration changes directly on firewalls through 
 
 The `detect_drift.yml` playbook identifies two distinct types of drift:
 
-**1. Modification Drift** - configuration items defined in YAML have been changed from the firewall GUI (not in YAML which is source of truth)
+**1. Modification Drift** - configuration items defined in YAML have been changed from the firewall GUI (not in YAML which is source of truth). This includes the order of security rules: policy evaluation is first-match-wins so moving a rule changes the policy without editing any rule.
 
-Example: An interface IP address was changed from `10.0.1.1/24` to `10.0.1.5/24` directly on the firewall.
+Example: An interface IP address was changed from `10.0.1.1/24` to `10.0.1.5/24` directly on the firewall or a security rule was moved above the rule that previously shadowed it.
 
 **2. Unauthorized Additions** - New items have been added from the firewall GUI, these items are not defined in the YAML.
 
@@ -82,7 +82,7 @@ Example: An engineer added a temporary "Allow Vendor Access" security rule direc
 
 ### Configuration Drift Remediation
 
-The `remediate_drift.yml` playbook restores the firewall to the exact state defined in the YAML source of truth. It handles both types of drift: it corrects modifications and removes unauthorized additions.
+The `remediate_drift.yml` playbook restores the firewall to the exact state defined in the YAML source of truth. It handles both types of drift: it corrects modifications (including restoring the rulebase to the YAML list order) and removes unauthorized additions.
 
 
 ## AAP Integration

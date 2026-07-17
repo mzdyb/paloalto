@@ -23,13 +23,11 @@
         negate_source: "{{ item.negate_source }}"
         negate_destination: "{{ item.negate_destination }}"
         disabled: "{{ item.disabled }}"
-        location: "{{ omit if rule_state == 'absent' else ('top' if idx == 0 else 'after') }}"
-        existing_rule: "{{ omit if (rule_state == 'absent' or idx == 0) else fw_security_rules[idx - 1].rule_name }}"
+        location: "{{ omit if rule_state == 'absent' else item.location }}"
+        existing_rule: "{{ omit if rule_state == 'absent' else item.existing_rule | default(omit) }}"
         commit: false
         state: "{{ rule_state }}"
       vars:
         rule_state: "{{ fw_rules_state | default(item.state | default('present')) }}"
       loop: "{{ fw_security_rules }}"
-      loop_control:
-        index_var: idx
       tags: security_rules

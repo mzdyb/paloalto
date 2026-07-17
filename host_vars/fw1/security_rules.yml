@@ -1,6 +1,7 @@
 ---
 fw_security_rules:
   - rule_name: "Allow ping"
+    location: "top"
     source_zone: ["any"]
     source_ip: ["any"]
     source_user: ["any"]
@@ -19,6 +20,8 @@ fw_security_rules:
     state: present
 
   - rule_name: "Allow SSH inbound"
+    location: "after"
+    existing_rule: "Allow ping"
     source_zone: ["untrust"]
     source_ip: ["any"]
     source_user: ["any"]
@@ -37,6 +40,8 @@ fw_security_rules:
     state: present
 
   - rule_name: "Allow inbound web"
+    location: "after"
+    existing_rule: "Allow SSH inbound"
     source_zone: ["untrust"]
     source_ip: ["any"]
     source_user: ["any"]
@@ -55,6 +60,8 @@ fw_security_rules:
     state: present
 
   - rule_name: "Allow web to db"
+    location: "after"
+    existing_rule: "Allow inbound web"
     source_zone: ["web"]
     source_ip: ["web-server"]
     source_user: ["any"]
@@ -73,6 +80,8 @@ fw_security_rules:
     state: present
 
   - rule_name: "Allow all outbound"
+    location: "after"
+    existing_rule: "Allow web to db"
     source_zone: ["web", "db"]
     source_ip: ["any"]
     source_user: ["any"]

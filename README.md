@@ -46,6 +46,8 @@ This project follows a Configuration-as-Code approach: the firewall configuratio
 
 This approach provides significant benefits. All changes are tracked in Git with a full audit trail and deployments are repeatable and consistent across firewalls. It also allows the YAML files to serve as the source of truth for firewall configuration and provides a foundation for drift detection and remediation.
 
+Security rule order is part of the source of truth: each rule in `host_vars/fw1/security_rules.yml` pins its position in the rulebase using the `location` and `existing_rule` parameters of the `panos_security_rule` module (the first rule is placed at the top, each following rule after its predecessor).
+
 
 1. **Apply configuration:**
 
@@ -82,7 +84,7 @@ Example: An engineer added a temporary "Allow Vendor Access" security rule direc
 
 ### Configuration Drift Remediation
 
-The `remediate_drift.yml` playbook restores the firewall to the exact state defined in the YAML source of truth. It handles both types of drift: it corrects modifications (including restoring the rulebase to the YAML list order) and removes unauthorized additions.
+The `remediate_drift.yml` playbook restores the firewall to the exact state defined in the YAML source of truth. It handles both types of drift: it corrects modifications (including restoring the rule order defined in the source of truth) and removes unauthorized additions.
 
 
 ## AAP Integration

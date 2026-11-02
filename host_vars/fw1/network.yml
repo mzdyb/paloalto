@@ -1,7 +1,7 @@
 ---
 fw_virtual_router:
   name: "default"
-  interfaces: ["ethernet1/1", "ethernet1/2", "ethernet1/3", "ethernet1/4", "ethernet1/5"]
+  interfaces: ["ethernet1/1", "ethernet1/2", "ethernet1/3"]
   state: present
 
 fw_static_routes:
